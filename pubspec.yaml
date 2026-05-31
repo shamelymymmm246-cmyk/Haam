@@ -16,19 +16,26 @@ dependencies:
   provider: ^6.1.2
   google_fonts: ^6.2.1
   flutter_animate: ^4.5.0
+  # المرحلة 1 — DNS
+  flutter_secure_storage: ^9.2.2
+  # المرحلة 2 — جامعو الإشارات
+  permission_handler: ^11.3.1
+  # المرحلة 6 — قفل بيومتري/PIN
+  local_auth: ^2.3.0
+  # المرحلة 4 — المراقبة الخلفية والإشعارات
+  workmanager: ^0.5.2
+  flutter_local_notifications: ^17.2.4
+
+dev_dependencies:
+  flutter_launcher_icons: ^0.14.3
+
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/icons/app_icon.png"
+  min_sdk_android: 21
 
 flutter:
   uses-material-design: true
-  fonts:
-    - family: PlusJakartaSans
-      fonts:
-        - asset: assets/fonts/PlusJakartaSans-Bold.ttf
-          weight: 700
-        - asset: assets/fonts/PlusJakartaSans-SemiBold.ttf
-          weight: 600
-    - family: Inter
-      fonts:
-        - asset: assets/fonts/Inter-Regular.ttf
-          weight: 400
-        - asset: assets/fonts/Inter-SemiBold.ttf
-          weight: 600
+  assets:
+    - assets/icons/

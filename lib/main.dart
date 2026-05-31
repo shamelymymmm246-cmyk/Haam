@@ -1,11 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:haam_counter/app.dart';
 import 'package:haam_counter/providers/counter_provider.dart';
+import 'package:haam_counter/providers/security_state_provider.dart';
+import 'package:haam_counter/services/background_service.dart';
+import 'package:haam_counter/services/notification_manager.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // المرحلة 4 — تهيئة الإشعارات والمراقبة الخلفية
+  await NotificationManager.initialize();
+  await BackgroundService.initialize();
+  await BackgroundService.registerPeriodicScan();
+
+  // طلب إذن POST_NOTIFICATIONS على Android 13+ (API 33)
+  await Permission.notification.request();
 
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -22,8 +34,11 @@ void main() {
   );
 
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => CounterProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => CounterProvider()),
+        ChangeNotifierProvider(create: (_) => SecurityStateProvider()),
+      ],
       child: const HaamApp(),
     ),
   );

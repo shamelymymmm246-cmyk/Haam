@@ -9,6 +9,129 @@ import 'package:haam_counter/widgets/counter_display.dart';
 import 'package:haam_counter/widgets/counter_button.dart';
 import 'package:haam_counter/widgets/security_chip.dart';
 import 'package:haam_counter/widgets/mode_switcher.dart';
+import 'package:haam_counter/screens/dns_screen.dart';
+import 'package:haam_counter/screens/security_overview_screen.dart';
+import 'package:haam_counter/screens/settings_screen.dart';
+
+class _DnsShortcut extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const DnsScreen()),
+      ),
+      child: GlassCard(
+        borderRadius: 16,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.safeBlue.withOpacity(0.12),
+              ),
+              child: const Icon(
+                Icons.dns_rounded,
+                color: AppColors.safeBlue,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'حالة DNS المشفّر',
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.onSurface,
+                    ),
+                  ),
+                  Text(
+                    'اضغط للفحص والتفعيل',
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      color: AppColors.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(
+              Icons.chevron_right_rounded,
+              color: AppColors.onSurfaceVariant,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SecurityOverviewShortcut extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const SecurityOverviewScreen()),
+      ),
+      child: GlassCard(
+        borderRadius: 16,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.activeMint.withOpacity(0.12),
+              ),
+              child: const Icon(
+                Icons.shield_rounded,
+                color: AppColors.activeMint,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'مؤشرات الأمان',
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.onSurface,
+                    ),
+                  ),
+                  Text(
+                    'شبكة · تطبيقات · سلامة الجهاز',
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      color: AppColors.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(
+              Icons.chevron_right_rounded,
+              color: AppColors.onSurfaceVariant,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 class CounterScreen extends StatelessWidget {
   const CounterScreen({super.key});
@@ -25,8 +148,12 @@ class CounterScreen extends StatelessWidget {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_outlined),
-            onPressed: () {},
+            icon: const Icon(Icons.settings_outlined),
+            tooltip: 'الإعدادات',
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const SettingsScreen()),
+            ),
           ),
         ],
       ),
@@ -139,6 +266,20 @@ class CounterScreen extends StatelessWidget {
                                 ],
                               ),
                             ),
+                          ),
+
+                          const SliverToBoxAdapter(child: SizedBox(height: 16)),
+
+                          // بطاقة DNS مشفّر — المرحلة 1
+                          SliverToBoxAdapter(
+                            child: _DnsShortcut(),
+                          ),
+
+                          const SliverToBoxAdapter(child: SizedBox(height: 12)),
+
+                          // مؤشرات الأمان — المرحلة 2
+                          SliverToBoxAdapter(
+                            child: _SecurityOverviewShortcut(),
                           ),
 
                           const SliverToBoxAdapter(child: SizedBox(height: 40)),
