@@ -1,0 +1,30 @@
+# Flutter/Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+pubspec.lock
+
+# Build output
+build/
+*.apk
+*.aab
+
+# Android generated
+android/.gradle/
+android/local.properties
+android/gradle/wrapper/gradle-wrapper.jar
+android/gradlew
+android/gradlew.bat
+android/app/src/main/java/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Logs
+*.log
+flutter_*.log
+
+# macOS
+.DS_Store

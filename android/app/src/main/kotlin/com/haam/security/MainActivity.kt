@@ -111,7 +111,8 @@ class MainActivity : FlutterFragmentActivity() {
 
     private fun openPrivateDnsSettings() {
         val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            Intent(Settings.ACTION_PRIVATE_DNS_SETTINGS)
+            // ACTION_PRIVATE_DNS_SETTINGS ليس ثابتاً عاماً في SDK — نستخدم قيمته النصية
+            Intent("android.settings.PRIVATE_DNS_SETTINGS")
         } else {
             Intent(Settings.ACTION_WIRELESS_SETTINGS)
         }
@@ -277,8 +278,10 @@ class MainActivity : FlutterFragmentActivity() {
         }
 
         return packages.mapNotNull { pkg ->
+            // applicationInfo أصبح nullable منذ API الحديثة
+            val appInfo = pkg.applicationInfo ?: return@mapNotNull null
             // تخطّ تطبيقات النظام
-            if (pkg.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM != 0) return@mapNotNull null
+            if (appInfo.flags and ApplicationInfo.FLAG_SYSTEM != 0) return@mapNotNull null
             // تخطّ التطبيق نفسه
             if (pkg.packageName == packageName) return@mapNotNull null
 
@@ -289,7 +292,7 @@ class MainActivity : FlutterFragmentActivity() {
             if (dangerous.isEmpty()) return@mapNotNull null
 
             mapOf<String, Any?>(
-                "name"        to pkg.applicationInfo.loadLabel(pm).toString(),
+                "name"        to appInfo.loadLabel(pm).toString(),
                 "package"     to pkg.packageName,
                 "version"     to (pkg.versionName ?: ""),
                 "permissions" to dangerous

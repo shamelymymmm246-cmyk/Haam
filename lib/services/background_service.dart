@@ -88,10 +88,7 @@ class BackgroundService {
 
   /// يُهيّئ WorkManager بالـ dispatcher — استدعِه مرة واحدة في main().
   static Future<void> initialize() async {
-    await Workmanager().initialize(
-      callbackDispatcher,
-      isInDebugMode: false,
-    );
+    await Workmanager().initialize(callbackDispatcher);
   }
 
   /// يُسجّل مهمة دورية كل 15 دقيقة (الحد الأدنى لـ WorkManager على Android).
@@ -103,7 +100,7 @@ class BackgroundService {
       frequency: const Duration(minutes: 15),
       initialDelay: const Duration(minutes: 1),
       constraints: Constraints(networkType: NetworkType.connected),
-      existingWorkPolicy: ExistingWorkPolicy.keep,
+      existingWorkPolicy: ExistingPeriodicWorkPolicy.keep,
     );
   }
 

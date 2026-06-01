@@ -4,6 +4,10 @@
 ## Kotlin
 -dontwarn kotlin.**
 
+## Play Core — يشير إليها Flutter للمكوّنات المؤجّلة (غير مستخدمة في التطبيق) — نتجاهل تحذيراتها
+-dontwarn com.google.android.play.core.**
+-keep class com.google.android.play.core.** { *; }
+
 ## flutter_secure_storage — Android Keystore
 -keep class com.it_nomads.fluttersecurestorage.** { *; }
 
@@ -11,8 +15,8 @@
 -keep class androidx.biometric.** { *; }
 -keep class io.flutter.plugins.localauth.** { *; }
 
-## workmanager
--keep class be.tramckrijte.workmanager.** { *; }
+## workmanager (النسخة 0.9.0 — حزمة dev.fluttercommunity)
+-keep class dev.fluttercommunity.workmanager.** { *; }
 -keep class androidx.work.** { *; }
 
 ## flutter_local_notifications

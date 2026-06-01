@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:haam_counter/models/dns_status.dart';
 import 'package:haam_counter/models/rule_result.dart';
 import 'package:haam_counter/models/security_state.dart';
 import 'package:haam_counter/services/apps_collector.dart';
