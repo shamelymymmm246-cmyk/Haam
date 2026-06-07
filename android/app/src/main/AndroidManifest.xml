@@ -22,12 +22,17 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <!-- مطلوب لـ WorkManager لتشغيل المهام في الخلفية -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!-- حماية الشبكة — فلتر DNS محلي (LDF) -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
     <application
         android:label="حام"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:allowBackup="false"
+        android:fullBackupContent="@xml/backup_rules"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:requestLegacyExternalStorage="false">
 
         <activity
@@ -49,6 +54,22 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- خدمة فلتر DNS المحلي (LDF — حماية الشبكة).
+             تستخدم واجهة VpnService الخاصة بأندرويد محلياً لاعتراض DNS فقط،
+             لذا يبقى إذن BIND_VPN_SERVICE و intent-filter النظام كما تفرضه المنصّة. -->
+        <service
+            android:name=".HaamLdfService"
+            android:exported="false"
+            android:permission="android.permission.BIND_VPN_SERVICE"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="local_dns_filter" />
+            <intent-filter>
+                <action android:name="android.net.VpnService" />
+            </intent-filter>
+        </service>
 
         <meta-data
             android:name="flutterEmbedding"

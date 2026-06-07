@@ -7,7 +7,9 @@ import 'package:haam_counter/models/rule_result.dart';
 import 'package:haam_counter/models/security_state.dart';
 import 'package:haam_counter/providers/security_state_provider.dart';
 import 'package:haam_counter/theme/app_colors.dart';
+import 'package:haam_counter/widgets/ambient_background.dart';
 import 'package:haam_counter/widgets/glass_card.dart';
+import 'package:haam_counter/widgets/shared/card_header.dart';
 
 class SecurityOverviewScreen extends StatefulWidget {
   const SecurityOverviewScreen({super.key});
@@ -57,14 +59,8 @@ class _SecurityOverviewScreenState extends State<SecurityOverviewScreen> {
           ),
         ],
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFF0D1520), AppColors.background],
-          ),
-        ),
+      body: AmbientBackground(
+        variant: AmbientVariant.topGlow,
         child: SafeArea(
           child: Consumer<SecurityStateProvider>(
             builder: (_, provider, __) {
@@ -209,7 +205,7 @@ class _RiskScoreCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(color: color, width: 3),
-                  color: color.withOpacity(0.08),
+                  color: color.withValues(alpha: 0.08),
                 ),
                 child: Center(
                   child: Text(
@@ -304,9 +300,9 @@ class _RuleItem extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
             decoration: BoxDecoration(
-              color: AppColors.alertRed.withOpacity(0.12),
+              color: AppColors.alertRed.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(6),
-              border: Border.all(color: AppColors.alertRed.withOpacity(0.3)),
+              border: Border.all(color: AppColors.alertRed.withValues(alpha: 0.3)),
             ),
             child: Text(
               rule.id,
@@ -360,7 +356,7 @@ class _RuleItem extends StatelessWidget {
             style: GoogleFonts.plusJakartaSans(
               fontSize: 12,
               fontWeight: FontWeight.w700,
-              color: AppColors.alertRed.withOpacity(0.7),
+              color: AppColors.alertRed.withValues(alpha: 0.7),
             ),
           ),
         ],
@@ -421,26 +417,26 @@ class _NetworkCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _CardHeader(
+          const CardHeader(
             icon: Icons.wifi_rounded,
             title: 'الشبكة الحالية',
             iconColor: AppColors.safeBlue,
           ),
           const SizedBox(height: 14),
           if (info == null)
-            _EmptyState(message: 'غير متصل بشبكة واي فاي أو تعذّر القراءة.')
+            const EmptyStateCard(message: 'غير متصل بشبكة واي فاي أو تعذّر القراءة.')
           else ...[
-            _Row('الاسم (SSID)',      info!.ssid    ?? 'يتطلب إذن الموقع'),
-            _Row('BSSID',            info!.bssid   ?? 'يتطلب إذن الموقع'),
-            _Row('البوابة (Gateway)', info!.gateway ?? 'غير متوفر'),
-            _Row('قناع الشبكة',       info!.subnetMask ?? 'غير متوفر'),
-            _Row('التشفير',           info!.encryptionLabel,
+            InfoRow('الاسم (SSID)',      info!.ssid    ?? 'يتطلب إذن الموقع'),
+            InfoRow('BSSID',            info!.bssid   ?? 'يتطلب إذن الموقع'),
+            InfoRow('البوابة (Gateway)', info!.gateway ?? 'غير متوفر'),
+            InfoRow('قناع الشبكة',       info!.subnetMask ?? 'غير متوفر'),
+            InfoRow('التشفير',           info!.encryptionLabel,
                 valueColor: info!.isOpenNetwork ? AppColors.alertRed : AppColors.activeMint),
             if (info!.signal != null)
-              _Row('قوة الإشارة',
+              InfoRow('قوة الإشارة',
                   '${info!.signal} dBm  (${info!.signalLabel ?? ''})'),
             if (info!.bandLabel != null)
-              _Row('التردد', info!.bandLabel!),
+              InfoRow('التردد', info!.bandLabel!),
           ],
         ],
       ),
@@ -469,19 +465,19 @@ class _ConnectionCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _CardHeader(
+          const CardHeader(
             icon: Icons.security_rounded,
             title: 'حماية الاتصال',
             iconColor: AppColors.activeMint,
           ),
           const SizedBox(height: 14),
-          _BoolRow('DNS مشفّر',  isDnsEncrypted,
+          StatusBoolRow('DNS مشفّر',  isDnsEncrypted,
               trueNote:  'استعلاماتك محمية من التجسّس',
               falseNote: 'ISP يرى المواقع التي تزورها'),
-          _BoolRow('VPN نشط',   hasVpn,
+          StatusBoolRow('VPN نشط',   hasVpn,
               trueNote:  'حركة البيانات مشفّرة عبر VPN',
               falseNote: 'لا يوجد VPN — بياناتك مكشوفة على الشبكة المحلية'),
-          _BoolRow('Proxy نظام', hasProxy,
+          StatusBoolRow('Proxy نظام', hasProxy,
               trueNote:  'قد يُعيد توجيه حركتك لخادم وسيط',
               falseNote: 'لا يوجد proxy',
               trueIsWarning: true),
@@ -506,7 +502,7 @@ class _DevicesCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _CardHeader(
+          const CardHeader(
             icon: Icons.devices_rounded,
             title: 'أجهزة الشبكة',
             iconColor: AppColors.primary,
@@ -572,15 +568,15 @@ class _AppsCardState extends State<_AppsCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _CardHeader(
+          CardHeader(
             icon: Icons.apps_rounded,
             title: 'التطبيقات المثبّتة',
             iconColor: widget.spyApps > 0 ? AppColors.alertRed : AppColors.safeBlue,
           ),
           const SizedBox(height: 14),
-          _Row('تطبيقات بأذونات خطرة', '${widget.totalFlagged}',
+          InfoRow('تطبيقات بأذونات خطرة', '${widget.totalFlagged}',
               valueColor: widget.totalFlagged > 5 ? AppColors.alertRed : null),
-          _Row('تطبيقات بمجموعة "تجسّس"', '${widget.spyApps}',
+          InfoRow('تطبيقات بمجموعة "تجسّس"', '${widget.spyApps}',
               subtitle: 'كاميرا + مايك + موقع معاً',
               valueColor: widget.spyApps > 0 ? AppColors.alertRed : AppColors.activeMint),
 
@@ -662,10 +658,10 @@ class _AppEntry extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                          color: AppColors.alertRed.withOpacity(0.15),
+                          color: AppColors.alertRed.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(6),
                           border: Border.all(
-                              color: AppColors.alertRed.withOpacity(0.4)),
+                              color: AppColors.alertRed.withValues(alpha: 0.4)),
                         ),
                         child: Text(
                           'تجسّس',
@@ -731,28 +727,57 @@ class _IntegrityCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _CardHeader(
+          const CardHeader(
             icon: Icons.verified_user_rounded,
             title: 'سلامة الجهاز',
             iconColor: AppColors.tertiary,
           ),
           const SizedBox(height: 14),
           if (integrity == null)
-            _EmptyState(message: 'تعذّر فحص سلامة الجهاز.')
+            const EmptyStateCard(message: 'تعذّر فحص سلامة الجهاز.')
           else ...[
-            _BoolRow(
+            StatusBoolRow(
               'الجهاز مروّت (Rooted)',
               integrity!.isRooted,
               trueNote:  'حماية النظام منخفضة — تجنّب تخزين بيانات حساسة',
               falseNote: 'لا أثر لـ root في المسارات المعروفة',
               trueIsWarning: true,
             ),
-            _BoolRow(
+            StatusBoolRow(
               'محاكي (Emulator)',
               integrity!.isEmulator,
               trueNote:  'يعمل على محاكي — بعض الميزات قد لا تعمل',
               falseNote: 'جهاز حقيقي',
               trueIsWarning: true,
+            ),
+            // المرحلة 4 — طبقة 4-ب: مقاومة التحليل (RASP)
+            StatusBoolRow(
+              'تحليل/هوكينغ فعّال',
+              integrity!.hasCriticalTamper,
+              trueNote:  'رُصد ${integrity!.activeSignals.join('، ')} — الخزنة تُعطَّل احترازياً',
+              falseNote: 'لا أثر لـ Frida أو Xposed أو مُنقِّح متّصل',
+              trueIsWarning: true,
+            ),
+            StatusBoolRow(
+              'بناء قابل للتنقيح (Debuggable)',
+              integrity!.isDebuggable,
+              trueNote:  'هذه نسخة تطوير — لا تستخدمها لبياناتك الحقيقية',
+              falseNote: 'نسخة إصدار غير قابلة للتنقيح',
+              trueIsWarning: true,
+            ),
+            StatusBoolRow(
+              'تصحيح USB (ADB) مفعّل',
+              integrity!.isAdbEnabled,
+              trueNote:  'ADB يوسّع سطح الهجوم — عطّله إن لم تحتجه',
+              falseNote: 'ADB غير مفعّل',
+              trueIsWarning: true,
+            ),
+            StatusBoolRow(
+              'مصدر تثبيت موثوق',
+              integrity!.installerTrusted,
+              trueNote:  'مُثبَّت من متجر موثوق',
+              falseNote: 'مصدر غير معروف — تأكّد أنك حمّلته من مكان موثوق',
+              trueIsWarning: false,
             ),
           ],
         ],
@@ -797,7 +822,7 @@ class _AnomalyCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _CardHeader(
+          CardHeader(
             icon:      Icons.auto_graph_rounded,
             title:     'كاشف الشذوذ',
             iconColor: color,
@@ -911,181 +936,4 @@ class _HonestNote extends StatelessWidget {
   }
 }
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// مكوّنات مشتركة
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-class _CardHeader extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final Color iconColor;
-  const _CardHeader({
-    required this.icon,
-    required this.title,
-    required this.iconColor,
-  });
 
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 32,
-          height: 32,
-          decoration: BoxDecoration(
-            color: iconColor.withOpacity(0.12),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(icon, color: iconColor, size: 17),
-        ),
-        const SizedBox(width: 10),
-        Text(
-          title,
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
-            color: AppColors.onSurface,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _Row extends StatelessWidget {
-  final String label;
-  final String value;
-  final String? subtitle;
-  final Color? valueColor;
-  const _Row(this.label, this.value, {this.subtitle, this.valueColor});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 120,
-            child: Text(
-              label,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: AppColors.onSurfaceVariant,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  value,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: valueColor ?? AppColors.onSurface,
-                  ),
-                ),
-                if (subtitle != null)
-                  Text(
-                    subtitle!,
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      color: AppColors.onSurfaceVariant,
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _BoolRow extends StatelessWidget {
-  final String label;
-  final bool value;
-  final String trueNote;
-  final String falseNote;
-  final bool trueIsWarning;
-
-  const _BoolRow(
-    this.label,
-    this.value, {
-    required this.trueNote,
-    required this.falseNote,
-    this.trueIsWarning = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final Color dotColor;
-    if (trueIsWarning) {
-      dotColor = value ? AppColors.alertRed : AppColors.activeMint;
-    } else {
-      dotColor = value ? AppColors.activeMint : AppColors.alertRed;
-    }
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 7),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 8,
-            height: 8,
-            margin: const EdgeInsets.only(top: 4, left: 4, right: 10),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: dotColor,
-              boxShadow: [BoxShadow(color: dotColor.withOpacity(0.4), blurRadius: 6)],
-            ),
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.onSurface,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  value ? trueNote : falseNote,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: AppColors.onSurfaceVariant,
-                    height: 1.4,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _EmptyState extends StatelessWidget {
-  final String message;
-  const _EmptyState({required this.message});
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      message,
-      style: GoogleFonts.inter(
-        fontSize: 13,
-        color: AppColors.onSurfaceVariant,
-        fontStyle: FontStyle.italic,
-      ),
-    );
-  }
-}

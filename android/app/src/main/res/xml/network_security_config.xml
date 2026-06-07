@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  المرحلة 4 — طبقة 4-د (تحصين الشبكة).
+  القاعدة الأساسية: منع كل حركة غير مشفّرة (cleartext) على مستوى التطبيق،
+  والثقة بمراجع شهادات النظام فقط. يُستثنى خادم DNS المحلي الأعلى (LDF
+  يستعلم عبر UDP إلى 1.1.1.1/1.0.0.1) لأن استعلام DNS نفسه ليس HTTPS.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+
+    <!-- نقاط DNS الأعلى لخدمة الفلتر المحلي (LDF) — استعلام DNS غير HTTPS -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">1.1.1.1</domain>
+        <domain includeSubdomains="false">1.0.0.1</domain>
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </domain-config>
+</network-security-config>

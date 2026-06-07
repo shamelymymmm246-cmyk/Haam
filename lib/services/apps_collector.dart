@@ -5,7 +5,7 @@ class AppsCollector {
   static const _channel = MethodChannel('com.haam.security/apps');
 
   // الأذونات الخطرة التي تُشير إلى تطبيقات تجمع بيانات حساسة
-  static const _dangerousPerms = {
+  static const dangerousPerms = {
     'android.permission.CAMERA',
     'android.permission.RECORD_AUDIO',
     'android.permission.ACCESS_FINE_LOCATION',
@@ -37,7 +37,7 @@ class AppsCollector {
   AppSecurityInfo _parseApp(Map raw) {
     final perms = (raw['permissions'] as List?)
             ?.map((p) => p.toString())
-            .where(_dangerousPerms.contains)
+            .where(dangerousPerms.contains)
             .toList() ??
         [];
 

@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:haam_counter/app.dart';
-import 'package:haam_counter/providers/counter_provider.dart';
+import 'package:haam_counter/providers/locale_provider.dart';
 import 'package:haam_counter/providers/security_state_provider.dart';
 import 'package:haam_counter/services/background_service.dart';
 import 'package:haam_counter/services/notification_manager.dart';
@@ -36,8 +36,8 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => CounterProvider()),
         ChangeNotifierProvider(create: (_) => SecurityStateProvider()),
+        ChangeNotifierProvider(create: (_) => LocaleProvider()),
       ],
       child: const HaamApp(),
     ),

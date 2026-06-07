@@ -61,6 +61,26 @@ class RuleEngine {
       reason: 'نمط أمني غير مألوف رصده كاشف الشذوذ',
       suggestedAction: 'راجع المؤشرات الأمنية — قد يكون هناك تغيّر غير اعتيادي في بيئتك',
     ),
+    // R7 — المرحلة 4 (التحصين العميق): تلاعب/تحليل فعّال على بيئة التشغيل.
+    // إشارة حرجة لأنها تُقوّض ضمانات التشفير (هوكينغ/تتبّع/توقيع غير مطابق/APK معدّل).
+    SecurityRule(
+      id: 'R7',
+      condition: (s) => s.deviceIntegrity?.hasCriticalTamper == true,
+      riskWeight: 35,
+      reason: 'رُصد تلاعب أو أداة تحليل فعّالة على بيئة التشغيل (هوكينغ/تتبّع/APK معدّل/توقيع غير مطابق)',
+      suggestedAction: 'أغلق أدوات التحليل وأعد التشغيل على جهاز نظيف — تُعطَّل الخزنة احترازياً',
+    ),
+    // R8 — المرحلة 4: إشارات بيئة مشبوهة غير حرجة
+    // (Magisk مخفي، تلاعب بالساعة، Root مخفي)
+    SecurityRule(
+      id: 'R8',
+      condition: (s) =>
+          (s.deviceIntegrity?.isMagiskHidden == true) ||
+          (s.deviceIntegrity?.isClockTampered == true),
+      riskWeight: 20,
+      reason: 'رُصدت إشارات بيئة مشبوهة (Magisk مخفي أو تلاعب بالساعة)',
+      suggestedAction: 'راجع سلامة جهازك — هذه الإشارات قد تعني محاولة إخفاء أدوات تعديل',
+    ),
   ];
 
   RiskAssessment evaluate(SecurityState state) {

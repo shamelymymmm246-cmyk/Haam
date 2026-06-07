@@ -33,6 +33,7 @@ class SecurityChip extends StatelessWidget {
               boxShadow: [
                 BoxShadow(
                   color: dotColor.withValues(alpha: 0.5),
+
                   blurRadius: 4,
                 ),
               ],

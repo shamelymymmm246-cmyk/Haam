@@ -30,8 +30,18 @@ class NotificationManager {
   static const _channelDesc = 'إشعار عند رصد تهديد أمني';
 
   static final _plugin  = FlutterLocalNotificationsPlugin();
-  static final _storage = const FlutterSecureStorage();
+  static FlutterSecureStorage _storage = const FlutterSecureStorage();
   static bool _initialized = false;
+
+  /// يعيد ضبط الحالة — للاستخدام في الاختبارات فقط.
+  static void testReset() {
+    _initialized = false;
+  }
+
+  /// للاختبارات — يحقن مخزناً وهمياً.
+  static void setTestStorage(FlutterSecureStorage s) {
+    _storage = s;
+  }
 
   /// يجب استدعاؤه مرة واحدة في main() وفي callbackDispatcher().
   static Future<void> initialize() async {

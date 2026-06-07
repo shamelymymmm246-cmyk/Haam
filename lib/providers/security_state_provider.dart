@@ -1,15 +1,19 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:haam_counter/models/rule_result.dart';
 import 'package:haam_counter/models/security_state.dart';
+import 'package:haam_counter/models/threat_log_entry.dart';
 import 'package:haam_counter/services/apps_collector.dart';
 import 'package:haam_counter/services/background_service.dart' show kCachedDnsEncryptedKey;
 import 'package:haam_counter/services/device_integrity_collector.dart';
 import 'package:haam_counter/services/dns_service.dart';
+import 'package:haam_counter/services/ldf_service.dart';
 import 'package:haam_counter/services/network_collector.dart';
 import 'package:haam_counter/services/network_devices_collector.dart';
 import 'package:haam_counter/services/anomaly_detector.dart';
 import 'package:haam_counter/services/rule_engine.dart';
+import 'package:haam_counter/services/threat_log_service.dart';
 
 enum CollectorPhase { idle, collectingNetwork, collectingApps, scanningDevices, done }
 
@@ -36,7 +40,13 @@ class SecurityStateProvider extends ChangeNotifier {
   final _ruleEngine       = RuleEngine();
   final _anomalyDetector  = AnomalyDetector();
   final _storage          = const FlutterSecureStorage();
+  final _systemChannel    = const MethodChannel('com.haam.security/system');
+  final _threatLogService = ThreatLogService();
   bool _anomalyReady      = false;
+
+  /// هل اكتشف ARP spoofing؟ (يُحدَّث أثناء الفحص)
+  bool _arpSpoofed = false;
+  bool get arpSpoofed => _arpSpoofed;
 
   Future<void> refresh() async {
     if (_loading) return;
@@ -72,6 +82,36 @@ class SecurityStateProvider extends ChangeNotifier {
 
       final newDevicesDetected = await _checkNewDevices(hostsCount);
 
+      // المرحلة 4 — فحوص إضافية: ARP spoofing + سجل التهديدات
+      try {
+        _arpSpoofed = await _systemChannel.invokeMethod<bool>('checkArpSpoofing') ?? false;
+      } catch (_) {
+        _arpSpoofed = false;
+      }
+
+      // سجل المحجوب من LDF في ThreatLogService
+      try {
+        final ldfStatus = await LdfService().getStatus();
+        if (ldfStatus.blockedQueries > 0) {
+          final recentLog = await _threatLogService.getLog();
+          final lastBlockedCount = recentLog
+              .where((e) => e.isBlocked)
+              .length;
+          // أضف دفعة جديدة إذا كان العدّاد ازداد
+          if (ldfStatus.blockedQueries.toInt() > lastBlockedCount) {
+            await _threatLogService.addEntry(
+              ThreatLogEntry(
+                id: DateTime.now().microsecondsSinceEpoch.toString(),
+                domain: 'blocklist.internal',
+                category: ThreatCategory.ad,
+                timestamp: DateTime.now(),
+                isBlocked: true,
+              ),
+            );
+          }
+        }
+      } catch (_) {}
+
       // حالة أولية بدون درجة شذوذ — للتغذية في الكاشف
       final prelimState = SecurityState(
         networkInfo:                 networkInfo,
@@ -83,6 +123,7 @@ class SecurityStateProvider extends ChangeNotifier {
         flaggedApps:                 flaggedApps,
         deviceIntegrity:             integrity,
         lastUpdated:                 DateTime.now(),
+        arpSpoofed:                  _arpSpoofed,
       );
 
       final anomalyScore = await _anomalyDetector.observe(prelimState);
@@ -99,6 +140,7 @@ class SecurityStateProvider extends ChangeNotifier {
         lastUpdated:                 DateTime.now(),
         anomalyScore:                anomalyScore,
         anomalySampleCount:          _anomalyDetector.sampleCount,
+        arpSpoofed:                  _arpSpoofed,
       );
 
       _riskAssessment = _ruleEngine.evaluate(_state);
@@ -137,4 +179,14 @@ class SecurityStateProvider extends ChangeNotifier {
       case CollectorPhase.idle:             return '';
     }
   }
+
+  /// هل اكتمل فحص واحد على الأقل (لدينا بيانات حقيقية لعرضها)؟
+  bool get hasScanned => _phase == CollectorPhase.done || _state.activeHostsCount > 0
+      || _state.networkInfo != null || _riskAssessment.triggeredRules.isNotEmpty;
+
+  /// درجة الأمان 0–100 مشتقّة من محرك القواعد (100 = آمن تماماً).
+  int get securityScore => (100 - _riskAssessment.totalRisk).clamp(0, 100);
+
+  /// لون الدرجة حسب المستوى.
+  RiskLevel get level => _riskAssessment.level;
 }

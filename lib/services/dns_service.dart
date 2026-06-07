@@ -39,13 +39,20 @@ class DnsService {
     }
   }
 
-  // فحص وجود VPN نشط عبر فحص واجهات الشبكة (tun / ppp)
+  // فحص وجود VPN حقيقي نشط عبر فحص واجهات الشبكة (tun / ppp).
+  // ملاحظة مهمّة: فلتر DNS المحلي (LDF) ينشئ هو نفسه واجهة TUN ضمن النطاق
+  // المحجوز 10.111.222.x — نستثنيها كي لا تُحسب خطأً كـ VPN حماية حقيقي
+  // (فلترنا لا يشفّر الحركة ولا يخفي IP، فادّعاء التشفير سيكون مضلِّلاً).
   Future<bool> _hasActiveVpn() async {
     try {
       final ifaces = await NetworkInterface.list();
       return ifaces.any((i) {
         final name = i.name.toLowerCase();
-        return name.contains('tun') || name.contains('ppp');
+        if (!name.contains('tun') && !name.contains('ppp')) return false;
+        // تجاهل واجهة فلتر DNS المحلي الخاصة بنا
+        final isLocalLdf =
+            i.addresses.any((a) => a.address.startsWith('10.111.222.'));
+        return !isLocalLdf;
       });
     } catch (_) {
       return false;

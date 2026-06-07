@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  المرحلة 4 — طبقة 4-ز.5 (Android 11 وأقل، API ≤ 30).
+  لا نسمح بنسخ أي شيء احتياطياً — البيانات محلية حسّاسة. مع allowBackup="false"
+  لا يُفعّل النسخ أصلاً، وهذا الملف يضمن الاستبعاد حيث تُحترم القواعد.
+-->
+<full-backup-content>
+    <exclude domain="root" />
+    <exclude domain="file" />
+    <exclude domain="database" />
+    <exclude domain="sharedpref" />
+    <exclude domain="external" />
+</full-backup-content>
